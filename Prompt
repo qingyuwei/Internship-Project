@@ -1,0 +1,45 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Linq;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Prompt : MonoBehaviour {
+    /// <summary>
+    /// 出现提示框
+    /// </summary>
+
+    public bool haveMsg;//报警信息开关
+    bool isShopTip;//鼠标经过状态
+    public GUISkin myskin;//UI样式
+
+	// Use this for initialization
+	void Start () {
+        isShopTip = false;
+        haveMsg = false;
+	}
+    void OnMouseDown()//点击开关
+    {
+        if (haveMsg == true && this.transform.gameObject.transform.Find("Dangerous")==null)
+        {
+            haveMsg = false;
+        }
+    }
+    void OnMouseEnter() //鼠标在物体上时
+    {
+        isShopTip = true;
+    }
+    void OnMouseExit()//鼠标离开物体时
+    {
+        isShopTip = false;
+    }
+    void OnGUI()
+    {   
+        if (isShopTip)//如果鼠标在物体上执行下列语句
+        {
+            GUI.skin = myskin;//运用UI样式
+            GUI.Label(new Rect(Input.mousePosition.x-20, Screen.height - Input.mousePosition.y-35, 100, 40), this.name);//绘制label
+        }
+    }
+}
