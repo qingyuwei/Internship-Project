@@ -1,0 +1,91 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using UnityEngine;
+
+public class ViewControl : MonoBehaviour
+{
+    /// <summary>
+    /// 视角移动控制脚本
+    /// </summary>
+
+    public float minFov = 15f;//滚轮滚动最小值
+    public float maxFov = 90f;//滚轮滚动最大值
+    public float sensitivityMouseWheel = 10f;//滚轮移动速度
+    public float sensitivityX = 10f;//横向移动灵敏度
+    public float sensitivityY = 10f;//纵向移动灵敏度
+    public float sensitivityZ = 10f;//旋转速度
+    private Vector3 PreMouseMPos;//点击鼠标左键时鼠标坐标
+    public float wheelSpeed = 0.1f;//拖拽场景速度
+    public GUISkin myskin;//UI皮肤
+    public Camera me;//1号摄像机
+    public Camera camera;//2号摄像机
+    public GameObject i;
+
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetAxis("Mouse ScrollWheel") != 0)//滚轮视角控制
+        {
+            float fov = Camera.main.fieldOfView;
+            fov -= Input.GetAxis("Mouse ScrollWheel") * sensitivityMouseWheel;
+            fov = Mathf.Clamp(fov, minFov, maxFov);//限制视角范围
+            Camera.main.fieldOfView = fov;
+        }
+        if (Input.GetMouseButton(1))//鼠标右键旋转视角
+        {
+            float rotationZ = Input.GetAxis("Mouse X") * sensitivityZ;
+            i.transform.Rotate(0, rotationZ, 0);
+        }
+        if (Input.GetMouseButton(0))//鼠标左键拖拽场景
+        {
+
+            if (PreMouseMPos.x <= 0)
+            {
+                PreMouseMPos = new Vector3(Input.mousePosition.x,Input.mousePosition.y,0.0f);
+            }
+            else
+            {
+                Vector3 CurMouseMPos = new Vector3(Input.mousePosition.x, Input.mousePosition.y,0.0f);
+                Vector3 offset = CurMouseMPos - PreMouseMPos;
+                offset = -offset * 0.1f;
+                transform.Translate(offset);
+                PreMouseMPos = CurMouseMPos;
+            }
+        }
+        else
+        {
+            PreMouseMPos = new Vector3(0.0f, 0.0f, 0.0f);
+        }
+        if (Input.GetAxis("Horizontal") != 0)//左右移动
+        {
+            float positionX = Input.GetAxis("Horizontal") * sensitivityX;
+            transform.Translate(new Vector3(-positionX * Time.deltaTime, 0, 0));
+        }
+        else if (Input.GetAxis("Vertical") != 0)//前后移动
+        {
+            float positionY = Input.GetAxis("Vertical") * sensitivityY;
+            transform.Translate(new Vector3(0, -positionY * Time.deltaTime,0));
+        }
+    }
+    void OnGUI()
+    {
+        GUI.skin = myskin;
+        if (GUI.Button(new Rect(Screen.width * 0.92f, 0, 70, 25), "复位"))//复位按钮
+        {
+            transform.position = new Vector3(-40, 60, -70);
+            transform.eulerAngles = new Vector3(50,0,0);
+            i.transform.eulerAngles = new Vector3(0, 0, 0);
+            Camera.main.fieldOfView = 60;
+        }
+        if (GUI.Button(new Rect(Screen.width * 0.92f, 30, 70, 25), "视角"))//更换视角
+        {
+            camera.depth = 0;
+            me.depth = -1;//启用2号摄像机
+            this.enabled = false;//关闭此脚本
+            camera.GetComponent<First_preson>().enabled = true;//激活2号摄像机控制脚本
+        }
+
+    }
+}
