@@ -11,11 +11,24 @@ public class First_preson : MonoBehaviour
     public float sensitivityX = 1f;
     public float sensitivityY = 1f;
     public float sensitivityZ = 1f;
+    private float x;
+    private float y;
+    private float z;
+    private float rx;
+    private float ry;
+    private float rz;
+    private float f;
 
     // Use this for initialization
     void Start()
     {
-
+        x = me.transform.position.x;
+        y = me.transform.position.y;
+        z = me.transform.position.z;
+        rx = me.transform.eulerAngles.x;
+        ry = me.transform.eulerAngles.y;
+        rz = me.transform.eulerAngles.z;
+        f = Camera.main.fieldOfView;
     }
 
     // Update is called once per frame
@@ -42,9 +55,9 @@ public class First_preson : MonoBehaviour
         GUI.skin = myskin;
         if (GUI.Button(new Rect(Screen.width * 0.92f, 0, 70, 25), "复位"))//复位按钮
         {
-            transform.position = new Vector3(20, 1.5f, 37);
-            transform.eulerAngles = new Vector3(0, 180, 0);
-            Camera.main.fieldOfView = 60;
+            transform.position = new Vector3(x, y, z);
+            transform.eulerAngles = new Vector3(rx, ry, rz);
+            Camera.main.fieldOfView = f;
         }
         if (GUI.Button(new Rect(Screen.width * 0.92f, 30, 70, 25), "视角"))//更换视角
         {
