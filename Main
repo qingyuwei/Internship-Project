@@ -6,154 +6,144 @@ using UnityEngine.UI;
 
 public class main : MonoBehaviour
 {
-	/// 
-	/// 目标列表
-	/// 
-	public List<GameObject> Targets;
-    
-    ///
-    ///告警信息 
-	///
+
+    /// 
+    /// 目标列表
+    /// 
+    public List<GameObject> Targets;
+
+    /// 
+    /// 当前目标
+    /// 
+    public List<MachineState> MachineStates = new List<MachineState>();
     public Transform Dangerous;
     private Transform dangerous;
-    /// 
-	/// 当前目标
-	/// 
-	public List<MachineState> MachineStates = new List<MachineState>();
-    public string alarmMsg;//告警信息
+    public Text text;
 
-	// Use this for initialization
-	void Start()
-	{
-		Targets = new List<GameObject>();
-		//UpdateTargetList();
-		Application.ExternalCall("UnityStart");
 
-	}
+    // Use this for initialization
+    void Start()
+    {
+        Targets = new List<GameObject>();
+        UpdateTargetList();
+        Application.ExternalCall("UnityStart");
+    }
 
     void Update()
     {
-        if (MachineStates.Count > 0)
+        stateChange();
+    }
+    void stateChange()
+    {
+        foreach (var state in MachineStates)
+        {
+
+            GameObject machine = GameObject.Find("Machines/" + state.mac_code);
+            switch (state.mac_state)
+            {
+                case 0:
+                    machine.GetComponentInChildren<Renderer>().material.color = Color.white;
+                    machine.transform.Find("Back").GetComponent<Renderer>().material.color = Color.white;
+                    try
+                    {
+                        if (machine.transform.Find("Dangerous") != null)
+                        {
+                            Destroy(machine.transform.Find("Dangerous").gameObject);
+                        }
+                        else { }
+                    }
+                    catch { }
+                    break;
+                case 1:
+                    machine.GetComponentInChildren<Renderer>().material.color = Color.yellow;
+                    machine.transform.Find("Back").GetComponent<Renderer>().material.color = Color.yellow;
+                    try
+                    {
+                        if (machine.transform.Find("Dangerous") != null)
+                        {
+                            Destroy(machine.transform.Find("Dangerous").gameObject);
+                        }
+                        else { }
+                    }
+                    catch { }
+                    break;
+                case 2:
+                    machine.GetComponentInChildren<Renderer>().material.color = Color.green;
+                    machine.transform.Find("Back").GetComponent<Renderer>().material.color = Color.green;
+                    try
+                    {
+                        if (machine.transform.Find("Dangerous") != null)
+                        {
+                            Destroy(machine.transform.Find("Dangerous").gameObject);
+                        }
+                        else { }
+                    }
+                    catch { }
+                    break;
+                case 3:
+                    machine.GetComponentInChildren<Renderer>().material.color = Color.red;
+                    machine.transform.Find("Back").GetComponent<Renderer>().material.color = Color.red;
+                    if (machine.GetComponentInChildren<Prompt>().haveMsg == false)
+                    {
+                        dangerous = Instantiate(Dangerous, new Vector3(0, 0, 0), Dangerous.transform.rotation);
+                        dangerous.transform.parent = machine.transform;
+                        dangerous.name = "Dangerous";
+                        dangerous.transform.localPosition = new Vector3(0.6f, 1.5f, 0);
+                        dangerous.transform.GetComponentInChildren<Text>().text = state.msg;
+                        machine.GetComponentInChildren<Prompt>().haveMsg = true;
+                    }
+                    break;
+                case 4:
+                    machine.GetComponentInChildren<Renderer>().material.color = new Color(0.87F, 0.72F, 0.53F);
+                    machine.transform.Find("Back").GetComponent<Renderer>().material.color = new Color(0.87F, 0.75F, 0.53F);
+                    try
+                    {
+                        if (machine.transform.Find("Dangerous") != null)
+                        {
+                            Destroy(machine.transform.Find("Dangerous").gameObject);
+                        }
+                        else { }
+                    }
+                    catch { }
+                    break;
+            }
+            machine = null;
+        }
+               
+    }
+    public void RefreshStates(string msg)
+    {
+        var hasMac = false;
+        string[] recvMac = msg.Split('|');
+        if (recvMac.Length > 0)
         {
             foreach (var state in MachineStates)
             {
-
-                string subDir = state.mac_code.Substring(0, 1);
-                GameObject machine = GameObject.Find("Machines/" + subDir + "/" + state.mac_code);
-                if(machine=null)
+                if (state.mac_code == recvMac[0])
                 {
-                    print("未找到"+machine.name+"机台");
-                }
-                if (machine != null)
-                {
-                    switch (state.mac_state)
-                    {
-                        case 0:
-                            machine.GetComponentInChildren<Renderer>().material.color = Color.white;
-                            machine.transform.Find("Back").GetComponent<Renderer>().material.color = Color.white;
-                            try
-                            {
-                                if (machine.transform.Find("Dangerous") != null)
-                                {
-                                    Destroy(machine.transform.Find("Dangerous").gameObject);
-                                }
-                            }
-                            catch { }
-                            machine.GetComponentInChildren<Prompt>().haveMsg = false;
-                            break;
-                        case 1:
-                            machine.GetComponentInChildren<Renderer>().material.color = Color.yellow;
-                            machine.transform.Find("Back").GetComponent<Renderer>().material.color = Color.yellow;
-                            try
-                            {
-                                if (machine.transform.Find("Dangerous") != null)
-                                {
-                                    Destroy(machine.transform.Find("Dangerous").gameObject);
-                                }
-                            }
-                            catch { }
-                            machine.GetComponentInChildren<Prompt>().haveMsg = false;
-                            break;
-                        case 2:
-                            machine.GetComponentInChildren<Renderer>().material.color = Color.green;
-                            machine.transform.Find("Back").GetComponent<Renderer>().material.color = Color.green;
-                            try
-                            {
-                                if (machine.transform.Find("Dangerous") != null)
-                                {
-                                    Destroy(machine.transform.Find("Dangerous").gameObject);
-                                }
-                            }
-                            catch { }
-                            machine.GetComponentInChildren<Prompt>().haveMsg = false;
-                            break;
-                        case 3:
-                            machine.GetComponentInChildren<Renderer>().material.color = Color.red;
-                            machine.transform.Find("Back").GetComponent<Renderer>().material.color = Color.red;
-                            if (machine.GetComponentInChildren<Prompt>().haveMsg == false)//如果报警开关为关闭状态就打开它然后生成报警信息
-                            {
-                                dangerous = Instantiate(Dangerous, new Vector3(0, 0, 0),Dangerous.transform.rotation);
-                                dangerous.transform.parent = machine.transform;
-                                dangerous.name = "Dangerous";
-                                dangerous.transform.localPosition = new Vector3(-4, 6, 4);
-                                dangerous.transform.GetComponentInChildren<Text>().text = alarmMsg;
-                                machine.GetComponentInChildren<Prompt>().haveMsg = true;
-                                dangerous.transform.eulerAngles = new Vector3(123,0,180);
-                            }
-                            break;
-                        case 4:
-                            machine.GetComponentInChildren<Renderer>().material.color = new Color(0.87f, 0.72f, 0.53f);
-                            machine.transform.Find("Back").GetComponent<Renderer>().material.color = new Color(0.87f, 0.72f, 0.53f);
-                            try
-                            {
-                                if (machine.transform.Find("Dangerous") != null)
-                                {
-                                    Destroy(machine.transform.Find("Dangerous").gameObject);
-                                }
-                            }
-                            catch { }
-                            machine.GetComponentInChildren<Prompt>().haveMsg = false;
-                            break;
-                    }
-                    machine = null;
-
-                }
-            }
-        }
-    }
-	public void RefreshStates(string msg)
-	{
-		var hasMac = false;
-		string[] recvMac = msg.Split('|');
-		if (recvMac.Length > 0)
-		{
-			foreach (var state in MachineStates)
-			{
-				if (state.mac_code == recvMac[0])
-				{
-					state.mac_state = int.Parse(recvMac[1]);
-					hasMac = true;
+                    state.mac_state = int.Parse(recvMac[1]);
+                    hasMac = true;
                     int stateID = int.Parse(recvMac[1]);
                     if (recvMac.Length > 2 && (stateID == 3))//报警时候赋值报警信息
                     {
-                        alarmMsg = recvMac[2];
+                        state.msg = recvMac[2];
                     }
-				}
-			}
-			if (!hasMac)
-			{
-				var mac = new MachineState();
-				mac.mac_code = recvMac[0];
+                }
+            }
+            if (!hasMac)
+            {
+                var mac = new MachineState();
+                mac.mac_code = recvMac[0];
                 int stateID = int.Parse(recvMac[1]);
-				mac.mac_state = int.Parse(recvMac[1]);
+                mac.mac_state = int.Parse(recvMac[1]);
                 if (recvMac.Length > 2 && (stateID == 3))//报警时候赋值报警信息
                 {
-                    alarmMsg = recvMac[2];
+                    mac.msg = recvMac[2];
                 }
-				MachineStates.Add(mac);
-			}
-		}
-	}
+                MachineStates.Add(mac);
+            }
+        }
+    }
 
 	/// 
 	/// 更新目标列表
@@ -172,10 +162,19 @@ public class main : MonoBehaviour
 			}
 		}
 	}
+	    //void OnGUI()//测试用例
+    //{
+    //    if (GUI.Button(new Rect(Screen.width * 0.9f, 200, 100, 30), ""))
+    //    {
+    //        RefreshStates("R001|3|模拟错误0001");
+    //        RefreshStates("R002|3|急停");
+    //    }
+    //}
 }
 
 public class MachineState
 {
 	public string mac_code { get; set; }
 	public int mac_state { get; set; }
+	public string msg { get; set; }
 }
