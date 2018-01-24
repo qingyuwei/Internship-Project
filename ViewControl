@@ -21,7 +21,27 @@ public class ViewControl : MonoBehaviour
     public Camera me;//1号摄像机
     public Camera camera;//2号摄像机
     public GameObject i;
-
+    
+    //初始坐标
+    private float x;
+    private float y;
+    private float z;
+    private float rx;
+    private float ry;
+    private float rz;
+    private float f;
+    
+     void Start()
+    {
+        //初始坐标获取
+        x = me.transform.position.x;
+        y = me.transform.position.y;
+        z = me.transform.position.z;
+        rx = me.transform.eulerAngles.x;
+        ry = me.transform.eulerAngles.y;
+        rz = me.transform.eulerAngles.z;
+        f = Camera.main.fieldOfView;
+    }
 
     // Update is called once per frame
     void Update()
@@ -74,10 +94,10 @@ public class ViewControl : MonoBehaviour
         GUI.skin = myskin;
         if (GUI.Button(new Rect(Screen.width * 0.92f, 0, 70, 25), "复位"))//复位按钮
         {
-            transform.position = new Vector3(-40, 60, -70);
-            transform.eulerAngles = new Vector3(50,0,0);
+            transform.position = new Vector3(x, y, z);
+            transform.eulerAngles = new Vector3(rx,ry,rz);
             i.transform.eulerAngles = new Vector3(0, 0, 0);
-            Camera.main.fieldOfView = 60;
+            Camera.main.fieldOfView = f;
         }
         if (GUI.Button(new Rect(Screen.width * 0.92f, 30, 70, 25), "视角"))//更换视角
         {
